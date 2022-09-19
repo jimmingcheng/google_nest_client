@@ -1,29 +1,36 @@
+from typing import Iterable
+
 import time
+from abc import ABCMeta
+from abc import abstractmethod
+
 from google_nest_client.device import get_device_id
 
 
-class DeviceCache:
-    def clear(self):
-        raise NotImplementedError
+class DeviceCache(metaclass=ABCMeta):
+    @abstractmethod
+    def clear(self) -> None:
+        pass
 
-    def upsert_device(device_update):
-        raise NotImplementedError
+    @abstractmethod
+    def upsert_device(self, device_update: dict) -> None:
+        pass
 
-    def get_devices(self):
-        raise NotImplementedError
+    def get_devices(self) -> Iterable[dict]:
+        pass
 
-    def get_device(self):
-        raise NotImplementedError
+    def get_device(self, device_id: str) -> dict:
+        pass
 
 
 class InMemoryDeviceCache(DeviceCache):
-    def __init__(self):
+    def __init__(self) -> None:
+        self.id_to_device: dict = {}
+
+    def clear(self) -> None:
         self.id_to_device = {}
 
-    def clear(self):
-        self.id_to_device = {}
-
-    def upsert_device(self, device_update):
+    def upsert_device(self, device_update: dict) -> None:
         device_id = get_device_id(device_update)
         device = self.id_to_device.get(device_id)
 
@@ -40,8 +47,8 @@ class InMemoryDeviceCache(DeviceCache):
                 device['events'][k] = v
                 device['events'][k]['timestamp'] = int(time.time())
 
-    def get_devices(self):
+    def get_devices(self) -> Iterable[dict]:
         return self.id_to_device.values()
 
-    def get_device(self, device_id):
+    def get_device(self, device_id: str) -> dict:
         return self.id_to_device[device_id]
