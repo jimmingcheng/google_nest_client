@@ -1,5 +1,5 @@
 venv: requirements-dev.txt
-	virtualenv --python=python3.8 venv
+	virtualenv --python=python3 venv
 	venv/bin/pip install -r requirements-dev.txt
 
 .PHONY: test
